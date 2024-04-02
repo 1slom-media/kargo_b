@@ -1,0 +1,56 @@
+type Query {
+  users(id: Int): [User]
+  kargos(id: Int): [Kargo]
+  clients(id: Int): [Clients]
+  orders(id: Int): [Orders]
+}
+
+type User {
+  id: Int
+  username: String
+  phone: String
+  avatar: String
+  kargos: [Kargo]
+}
+
+type Kargo {
+  id: Int
+  title: String
+  simplePrice: Float
+  expensive: Float
+  typeTitleSimple: String
+  typeTitleExpensive: String
+  date: String
+  user: User
+}
+
+type Clients {
+  id: Int
+  firstName: String
+  lastName: String
+  phoneNumber1: String
+  phoneNumber2: String
+  location: String
+  productCount: Int
+  clientNetwork: String
+  orders:[Orders]
+}
+
+type Orders {
+  id: Int
+  title: String
+  price_region: Float
+  count: Int
+  weight: Float
+  type: String
+  logistica: String
+  priceAll: Float
+  logisticaPrice: Float
+  logisticaPriceAll: Float
+  productPrice: Float
+  productPriceAll: Float
+  status: String
+  priceTitle: String
+  image: String
+  clients:[Clients]
+}
