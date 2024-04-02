@@ -25,11 +25,21 @@ class CategoryController {
 
   public async WhoAmi(req: Request, res: Response): Promise<void> {
     const userId = req.userId;
-    res.json(
-      await AppDataSource.getRepository(UsersEntity).find({
-        where: { id: +userId },
-      })
-    );
+    const user = await AppDataSource.getRepository(UsersEntity).findOne({
+      where: { id: +userId },
+    });
+    if (user && user.trial === true) {
+      res.json(
+        await AppDataSource.getRepository(UsersEntity).find({
+          where: { id: +userId },
+        })
+      );
+    } else {
+      req.userId = null;
+      res.json({
+        data: null,
+      });
+    }
   }
 
   public async Login(req: Request, res: Response) {
@@ -39,12 +49,28 @@ class CategoryController {
       const foundUser = await AppDataSource.getRepository(UsersEntity).findOne({
         where: { phone },
       });
-      if (foundUser && (await compare(password, foundUser.password)) == true) {
+      if (
+        foundUser &&
+        (await compare(password, foundUser.password)) == true &&
+        foundUser.trial == true
+      ) {
         res.json({
           status: 201,
           message: "login success",
           token: sign({ userId: foundUser.id }),
           data: foundUser,
+        });
+      }
+      if (
+        foundUser &&
+        (await compare(password, foundUser.password)) == true &&
+        foundUser.trial == false
+      ) {
+        res.json({
+          status: 201,
+          message: "your subscription has expired",
+          token: null,
+          data: [],
         });
       } else {
         res.json({
@@ -61,11 +87,11 @@ class CategoryController {
 
   public async Post(req: Request, res: Response) {
     try {
-      let { username, phone, password } = req.body;
+      let { username, phone, password, role, time_date } = req.body;
       const { filename } = req.file;
       const avatar = process.env.IMAGE_PATH + "/static/" + filename;
       password = await hashed(password);
-
+      time_date = new Date(time_date);
       const uniqueUser = await AppDataSource.getRepository(UsersEntity).findOne(
         {
           where: { phone },
@@ -77,7 +103,7 @@ class CategoryController {
           .createQueryBuilder()
           .insert()
           .into(UsersEntity)
-          .values({ username, avatar, phone, password })
+          .values({ username, avatar, phone, password, role, time_date })
           .returning("*")
           .execute();
 
@@ -86,7 +112,7 @@ class CategoryController {
           message: "users created",
           data: users.raw[0],
         });
-      }else{
+      } else {
         res.json({
           status: 400,
           message: "users already exists",
@@ -99,7 +125,7 @@ class CategoryController {
 
   public async Put(req: Request, res: Response) {
     try {
-      const { username, phone, password } = req.body;
+      const { username, phone, password, role, time_date, trial } = req.body;
       const { id } = req.params;
       let avatar: string;
       if (req.file) {
@@ -126,6 +152,9 @@ class CategoryController {
       user.username = username != "" ? username : user.username;
       user.phone = phone != "" ? phone : user.phone;
       user.password = password != "" ? password : user.password;
+      user.role = role != "" ? role : user.role;
+      user.time_date = time_date != undefined ? new Date(time_date) : user.time_date;
+      user.trial = trial != "" ? trial : user.trial;
       user.avatar = avatar != undefined ? avatar : user.avatar;
 
       await AppDataSource.manager.save(user);

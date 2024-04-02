@@ -10,6 +10,7 @@ import path from "path";
 import cors from "cors";
 import { resolvers } from "./resolvers";
 import router from "./routes";
+import { updateStatus } from "./utils/users-time";
 
 interface MyContext {
   token?: String;
@@ -35,6 +36,9 @@ async function startServer() {
   app.use(express.json());
   app.use(router);
   app.use("/static", express.static(path.join(process.cwd(), "uploads")));
+  setInterval(() => {
+    updateStatus();
+  },5000);
   app.use(
     "/graphql",
     cors<cors.CorsRequest>(),

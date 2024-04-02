@@ -29,6 +29,15 @@ export class UsersEntity {
   @Column({ type: "varchar", nullable: true })
   password: string;
 
+  @Column({ type: "varchar", default: "user" })
+  role: string;
+
+  @Column({ type: "boolean", default: true })
+  trial: boolean;
+
+  @Column({ type: "timestamp" })
+  time_date: Date;
+
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
@@ -40,4 +49,4 @@ export class UsersEntity {
     onUpdate: "CASCADE",
   })
   kargos: KargosEntity[];
-} 
+}
