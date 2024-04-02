@@ -5,7 +5,7 @@
    "main": "index.js",
    "scripts": {
       "start": "tsc && node ./build/server.js",
-      "start:rise": "tsc && node ./build/server.js",
+      "start:kargo": "tsc && node ./build/server.js",
       "typeorm": "typeorm-ts-node-commonjs"
    },
    "keywords": [],
