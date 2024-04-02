@@ -34,11 +34,12 @@ async function startServer() {
   });
   await server.start();
   app.use(express.json());
+  app.use(cors());
   app.use(router);
   app.use("/static", express.static(path.join(process.cwd(), "uploads")));
   setInterval(() => {
     updateStatus();
-  },5000);
+  }, 5000);
   app.use(
     "/graphql",
     cors<cors.CorsRequest>(),
