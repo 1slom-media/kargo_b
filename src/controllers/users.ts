@@ -11,14 +11,20 @@ dotenv.config();
 
 class CategoryController {
   public async Get(req: Request, res: Response): Promise<void> {
-    res.json(await AppDataSource.getRepository(UsersEntity).find());
+    res.json(await AppDataSource.getRepository(UsersEntity).find({
+      relations:{
+        kargos:true
+      }
+    }));
   }
 
   public async GetId(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     res.json(
       await AppDataSource.getRepository(UsersEntity).find({
-        where: { id: +id },
+        where: { id: +id },relations:{
+          kargos:true
+        }
       })
     );
   }
@@ -26,12 +32,16 @@ class CategoryController {
   public async WhoAmi(req: Request, res: Response): Promise<void> {
     const userId = req.userId;
     const user = await AppDataSource.getRepository(UsersEntity).findOne({
-      where: { id: +userId },
+      where: { id: +userId },relations:{
+        kargos:true
+      }
     });
     if (user && user.trial === true) {
       res.json(
         await AppDataSource.getRepository(UsersEntity).find({
-          where: { id: +userId },
+          where: { id: +userId },relations:{
+            kargos:true
+          }
         })
       );
     } else {

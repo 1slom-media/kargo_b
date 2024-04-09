@@ -2,7 +2,7 @@ type Query {
   users(id: Int): [User]
   kargos(id: Int): [Kargo]
   clients(id: Int): [Clients]
-  orders(id: Int): [Orders]
+  orders(id: Int, userId: Int): [Orders]
 }
 
 type User {
@@ -11,6 +11,7 @@ type User {
   phone: String
   avatar: String
   kargos: [Kargo]
+  orders: [Orders]
 }
 
 type Kargo {
@@ -33,7 +34,7 @@ type Clients {
   location: String
   productCount: Int
   clientNetwork: String
-  orders:[Orders]
+  orders: [Orders]
 }
 
 type Orders {
@@ -52,5 +53,6 @@ type Orders {
   status: String
   priceTitle: String
   image: String
-  clients:[Clients]
+  clients: [Clients]
+  user: User
 }

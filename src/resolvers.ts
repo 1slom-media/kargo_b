@@ -60,20 +60,32 @@ export const resolvers = {
         return clients;
       }
     },
-    orders: async (_, { id }) => {
+    orders: async (_, { id, userId }) => {
       if (id && +id > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
+            user: true,
           },
           where: { id: +id },
         });
         return orders;
+      }
+      if (userId && userId > 0) {
+        const orders = await AppDataSource.getRepository(OrdersEntity).find({
+          relations: {
+            clients: true,
+            user: true,
+          },
+        });
+        const userById = orders.filter((order) => order?.user?.id == userId);
+        return userById;
       } else {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
-          }, 
+            user: true,
+          },
         });
         return orders;
       }

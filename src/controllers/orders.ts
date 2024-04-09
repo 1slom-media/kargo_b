@@ -47,6 +47,7 @@ class OrdersController {
       productPriceAll,
       status,
       priceTitle,
+      user,
     } = req.body;
 
     const { filename } = req.file;
@@ -71,6 +72,7 @@ class OrdersController {
         status,
         priceTitle,
         image,
+        user,
       })
       .returning("*")
       .execute();
@@ -99,6 +101,7 @@ class OrdersController {
         status,
         priceTitle,
         clientId,
+        user,
       } = req.body;
       const { id } = req.params;
       let image: string;
@@ -146,6 +149,7 @@ class OrdersController {
       orders.status = status != "" ? status : orders.status;
       orders.priceTitle = priceTitle != "" ? priceTitle : orders.priceTitle;
       orders.image = image != undefined ? image : orders.image;
+      orders.user = user != "" ? user : orders?.user?.id;
       if (client) {
         if (!orders.clients) {
           orders.clients = [];

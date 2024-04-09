@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { KargosEntity } from "./kargos";
+import { OrdersEntity } from "./orders";
 
 @Entity({ name: "users" })
 export class UsersEntity {
@@ -49,4 +50,10 @@ export class UsersEntity {
     onUpdate: "CASCADE",
   })
   kargos: KargosEntity[];
+
+  @OneToMany(() => OrdersEntity, (orders) => orders.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  orders: OrdersEntity[];
 }

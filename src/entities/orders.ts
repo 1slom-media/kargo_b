@@ -6,8 +6,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
 } from "typeorm";
 import { ClientsEntity } from "./clients";
+import { UsersEntity } from "./users";
 
 @Entity({ name: "ordes" })
 export class OrdersEntity {
@@ -76,4 +78,10 @@ export class OrdersEntity {
     onUpdate: "CASCADE",
   })
   clients: ClientsEntity[];
+
+  @ManyToOne(() => UsersEntity, (user) => user.orders, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  user: UsersEntity;
 }
