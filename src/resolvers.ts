@@ -11,6 +11,8 @@ export const resolvers = {
         const users = await AppDataSource.getRepository(UsersEntity).find({
           relations: {
             kargos: true,
+            clients: true,
+            orders: true,
           },
           where: { id: +id },
         });
@@ -19,12 +21,14 @@ export const resolvers = {
         const users = await AppDataSource.getRepository(UsersEntity).find({
           relations: {
             kargos: true,
+            clients: true,
+            orders: true,
           },
         });
         return users;
       }
     },
-    kargos: async (_, { id }) => {
+    kargos: async (_, { id, userId }) => {
       if (id && +id > 0) {
         const kargos = await AppDataSource.getRepository(KargosEntity).find({
           relations: {
@@ -33,6 +37,15 @@ export const resolvers = {
           where: { id: +id },
         });
         return kargos;
+      }
+      if (userId && +userId > 0) {
+        const kargos = await AppDataSource.getRepository(KargosEntity).find({
+          relations: {
+            user: true,
+          },
+        });
+        const userById = kargos.filter((order) => order?.user?.id == userId);
+        return userById;
       } else {
         const kargos = await AppDataSource.getRepository(KargosEntity).find({
           relations: {
@@ -42,19 +55,31 @@ export const resolvers = {
         return kargos;
       }
     },
-    clients: async (_, { id }) => {
+    clients: async (_, { id, userId }) => {
       if (id && +id > 0) {
         const clients = await AppDataSource.getRepository(ClientsEntity).find({
           relations: {
             orders: true,
+            user: true,
           },
           where: { id: +id },
         });
         return clients;
+      }
+      if (userId && +userId > 0) {
+        const clients = await AppDataSource.getRepository(ClientsEntity).find({
+          relations: {
+            orders: true,
+            user: true,
+          },
+        });
+        const userById = clients.filter((order) => order?.user?.id == userId);
+        return userById;
       } else {
         const clients = await AppDataSource.getRepository(ClientsEntity).find({
           relations: {
             orders: true,
+            user: true,
           },
         });
         return clients;
@@ -71,7 +96,7 @@ export const resolvers = {
         });
         return orders;
       }
-      if (userId && userId > 0) {
+      if (userId && +userId > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,

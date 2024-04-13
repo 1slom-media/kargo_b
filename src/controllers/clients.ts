@@ -36,6 +36,7 @@ class ClientsController {
       location,
       productCount,
       clientNetwork,
+      user
     } = req.body;
 
     const clients = await AppDataSource.getRepository(ClientsEntity)
@@ -50,6 +51,7 @@ class ClientsController {
         location,
         productCount,
         clientNetwork,
+        user
       })
       .returning("*")
       .execute();

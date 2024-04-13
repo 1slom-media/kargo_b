@@ -8,8 +8,10 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  ManyToOne,
 } from "typeorm";
 import { OrdersEntity } from "./orders";
+import { UsersEntity } from "./users";
 
 @Entity({ name: "clients" })
 export class ClientsEntity {
@@ -55,4 +57,10 @@ export class ClientsEntity {
   })
   @JoinTable()
   orders: OrdersEntity[];
+
+  @ManyToOne(() => UsersEntity, (user) => user.clients, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  user: UsersEntity;
 }
