@@ -85,7 +85,7 @@ export const resolvers = {
         return clients;
       }
     },
-    orders: async (_, { id, userId }) => {
+    orders: async (_, { id, userId, skip, take }) => {
       if (id && +id > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
@@ -105,6 +105,17 @@ export const resolvers = {
         });
         const userById = orders.filter((order) => order?.user?.id == userId);
         return userById;
+      }
+      if (+skip > 0 && +take > 0) {
+        const orders = await AppDataSource.getRepository(OrdersEntity).find({
+          relations: {
+            clients: true,
+            user: true,
+          },
+          skip: +take * (+skip - 1),
+          take: +take,
+        });
+        return orders;
       } else {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {

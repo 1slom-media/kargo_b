@@ -2,7 +2,7 @@ type Query {
   users(id: Int): [User]
   kargos(id: Int, userId: Int): [Kargo]
   clients(id: Int, userId: Int): [Clients]
-  orders(id: Int, userId: Int): [Orders]
+  orders(id: Int, userId: Int,skip:String,take:String): [Orders]
 }
 
 type User {
