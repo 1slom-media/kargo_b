@@ -101,13 +101,13 @@ export const resolvers = {
           },
         ];
       }
-      if (userId && +userId > 0) {
+      if (userId && +userId > 0 &&!skip) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
             user: true,
-          }
-        });
+          },order:{id:"DESC"}
+        }); 
         const userById = orders.filter((order) => order?.user?.id == userId);
         return [
           {
@@ -116,7 +116,7 @@ export const resolvers = {
           },
         ];
       }
-      if (+skip > 0 && +take > 0) {
+      if (+skip > 0 && +take > 0 && !userId) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
@@ -129,7 +129,7 @@ export const resolvers = {
           relations: {
             clients: true,
             user: true,
-          },
+          },order:{id:"DESC"},
           skip: +take * (+skip - 1),
           take: +take,
         });
@@ -145,7 +145,7 @@ export const resolvers = {
           relations: {
             clients: true,
             user: true,
-          },
+          },order:{id:"DESC"}
         });
         const userById = orders.filter((order) => order?.user?.id == userId);
         return [{
@@ -157,7 +157,7 @@ export const resolvers = {
         relations: {
           clients: true,
           user: true,
-        },
+        },order:{id:"DESC"}
       });
       return [
         {
