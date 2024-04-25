@@ -94,17 +94,27 @@ export const resolvers = {
           },
           where: { id: +id },
         });
-        return orders;
+        return [
+          {
+            pages: 1,
+            orders,
+          },
+        ];
       }
       if (userId && +userId > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
             user: true,
-          },
+          }
         });
         const userById = orders.filter((order) => order?.user?.id == userId);
-        return userById;
+        return [
+          {
+            pages: 1,
+            orders:userById,
+          },
+        ];
       }
       if (+skip > 0 && +take > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
@@ -112,19 +122,49 @@ export const resolvers = {
             clients: true,
             user: true,
           },
+        });
+        const paginatedOrders = await AppDataSource.getRepository(
+          OrdersEntity
+        ).find({
+          relations: {
+            clients: true,
+            user: true,
+          },
           skip: +take * (+skip - 1),
           take: +take,
         });
-        return orders;
-      } else {
+        return [
+          {
+            pages: Math.ceil(+orders.length / +take),
+            orders: paginatedOrders,
+          },
+        ];
+      }
+      if(+skip>0 && +take>0 && +userId>0){
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
             user: true,
           },
         });
-        return orders;
+        const userById = orders.filter((order) => order?.user?.id == userId);
+        return [{
+          pages:Math.ceil(+userById.length/+take),
+          orders:userById.slice((+skip-1)*+take,+skip*+take)
+        }]
       }
+      const orders = await AppDataSource.getRepository(OrdersEntity).find({
+        relations: {
+          clients: true,
+          user: true,
+        },
+      });
+      return [
+        {
+          pages: 1,
+          orders,
+        },
+      ];
     },
   },
 };

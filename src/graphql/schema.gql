@@ -2,7 +2,7 @@ type Query {
   users(id: Int): [User]
   kargos(id: Int, userId: Int): [Kargo]
   clients(id: Int, userId: Int): [Clients]
-  orders(id: Int, userId: Int,skip:String,take:String): [Orders]
+  orders(id: Int, userId: Int,skip:String,take:String): [Pagination]
 }
 
 type User {
@@ -12,6 +12,13 @@ type User {
   avatar: String
   kargos: [Kargo]
   orders: [Orders]
+  createdAt:String
+  updateAt:String
+}
+
+type Pagination{
+  pages:Int
+  orders:[Orders]
 }
 
 type Kargo {
@@ -23,6 +30,8 @@ type Kargo {
   typeTitleExpensive: String
   date: String
   user: User
+  createdAt:String
+  updateAt:String
 }
 
 type Clients {
@@ -35,6 +44,8 @@ type Clients {
   productCount: Int
   clientNetwork: String
   orders: [Orders]
+  createdAt:String
+  updateAt:String
 }
 
 type Orders {
@@ -55,4 +66,6 @@ type Orders {
   image: String
   clients: [Clients]
   user: User
+  createdAt:String
+  updateAt:String
 }
