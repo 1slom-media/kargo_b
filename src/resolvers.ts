@@ -1,3 +1,4 @@
+import { Like } from "typeorm";
 import { AppDataSource } from "./data-source";
 import { ClientsEntity } from "./entities/clients";
 import { KargosEntity } from "./entities/kargos";
@@ -85,7 +86,7 @@ export const resolvers = {
         return clients;
       }
     },
-    orders: async (_, { id, userId, skip, take }) => {
+    orders: async (_, { id, userId, skip, take, search }) => {
       if (id && +id > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
@@ -101,18 +102,19 @@ export const resolvers = {
           },
         ];
       }
-      if (userId && +userId > 0 &&!skip) {
+      if (userId && +userId > 0 && !skip) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
             user: true,
-          },order:{id:"DESC"}
-        }); 
+          },
+          order: { id: "DESC" },
+        });
         const userById = orders.filter((order) => order?.user?.id == userId);
         return [
           {
             pages: 1,
-            orders:userById,
+            orders: userById,
           },
         ];
       }
@@ -129,7 +131,8 @@ export const resolvers = {
           relations: {
             clients: true,
             user: true,
-          },order:{id:"DESC"},
+          },
+          order: { id: "DESC" },
           skip: +take * (+skip - 1),
           take: +take,
         });
@@ -140,24 +143,61 @@ export const resolvers = {
           },
         ];
       }
-      if(+skip>0 && +take>0 && +userId>0){
+      if (+skip > 0 && +take > 0 && +userId > 0) {
         const orders = await AppDataSource.getRepository(OrdersEntity).find({
           relations: {
             clients: true,
             user: true,
-          },order:{id:"DESC"}
+          },
+          order: { id: "DESC" },
         });
         const userById = orders.filter((order) => order?.user?.id == userId);
-        return [{
-          pages:Math.ceil(+userById.length/+take),
-          orders:userById.slice((+skip-1)*+take,+skip*+take)
-        }]
+        return [
+          {
+            pages: Math.ceil(+userById.length / +take),
+            orders: userById.slice((+skip - 1) * +take, +skip * +take),
+          },
+        ];
+      }
+      if (+userId > 0 && search) {
+        const orders = await AppDataSource.getRepository(OrdersEntity).find({
+          relations: {
+            clients: true,
+            user: true,
+          },
+          order: { id: "DESC" },
+          where: { title: Like(`${search}%`) },
+        });
+        const userById = orders.filter((order) => order?.user?.id == userId);
+        return [
+          {
+            pages: 1,
+            orders: userById,
+          },
+        ];
+      }
+      if (search) {
+        const orders = await AppDataSource.getRepository(OrdersEntity).find({
+          relations: {
+            clients: true,
+            user: true,
+          },
+          order: { id: "DESC" },
+          where: { title: Like(`${search}%`) },
+        });
+        return [
+          {
+            pages: 1,
+            orders,
+          },
+        ];
       }
       const orders = await AppDataSource.getRepository(OrdersEntity).find({
         relations: {
           clients: true,
           user: true,
-        },order:{id:"DESC"}
+        },
+        order: { id: "DESC" },
       });
       return [
         {
