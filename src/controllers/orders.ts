@@ -48,7 +48,8 @@ class OrdersController {
       status,
       priceTitle,
       user,
-      link
+      link,
+      orderPrice,
     } = req.body;
 
     const { filename } = req.file;
@@ -74,7 +75,8 @@ class OrdersController {
         priceTitle,
         image,
         user,
-        link
+        link,
+        orderPrice,
       })
       .returning("*")
       .execute();
@@ -104,7 +106,8 @@ class OrdersController {
         priceTitle,
         clientId,
         user,
-        link
+        link,
+        orderPrice,
       } = req.body;
       const { id } = req.params;
       let image: string;
@@ -132,6 +135,7 @@ class OrdersController {
 
       orders.title = title != "" ? title : orders.title;
       orders.link = link != "" ? link : orders.link;
+      orders.orderPrice = orderPrice != "" ? orderPrice : orders.orderPrice;
       orders.price_region =
         price_region != "" ? price_region : orders.price_region;
       orders.count = count != "" ? count : orders.count;
@@ -151,7 +155,7 @@ class OrdersController {
       orders.priceTitle = priceTitle != "" ? priceTitle : orders.priceTitle;
       orders.image = image != undefined ? image : orders.image;
       orders.user = user != "" ? user : orders?.user?.id;
-      if (clientId && +clientId>0) {
+      if (clientId && +clientId > 0) {
         const client = await AppDataSource.getRepository(ClientsEntity).findOne(
           {
             where: { id: +clientId },

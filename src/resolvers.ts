@@ -1,4 +1,3 @@
-import { Like } from "typeorm";
 import { AppDataSource } from "./data-source";
 import { ClientsEntity } from "./entities/clients";
 import { KargosEntity } from "./entities/kargos";
@@ -86,31 +85,44 @@ export const resolvers = {
         return clients;
       }
     },
-    orders: async (_, { id, userId, skip, take, search }) => {
+    orders: async (_, { id, userId, skip, take, search, status }) => {
+      let query = AppDataSource.getRepository(OrdersEntity)
+        .createQueryBuilder("ordes")
+        .leftJoinAndSelect("ordes.clients", "clients")
+        .leftJoinAndSelect("ordes.user", "users")
+        .orderBy("ordes.id", "DESC");
+
       if (id && +id > 0) {
-        const orders = await AppDataSource.getRepository(OrdersEntity).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-          where: { id: +id },
+        query = query.andWhere("ordes.id = :id", {
+          id: id,
         });
+      }
+      if (status && String(status).length) {
+        query = query.andWhere("ordes.status=:status", { status: status });
+      }
+      if (search && String(search).length) {
+        query = query.andWhere("ordes.title LIKE :search", {
+          search: `${search}%`,
+        });
+      }
+
+      if (userId && userId > 0 && +skip > 0 && +take > 0) {
+        const ordersList = await query.getMany();
+        const userById = ordersList.filter(
+          (order) => order?.user?.id == userId
+        );
         return [
           {
-            pages: 1,
-            orders,
+            pages: Math.ceil(+userById.length / +take),
+            orders: userById.slice((+skip - 1) * +take, +skip * +take),
           },
         ];
       }
-      if (userId && +userId > 0 && !skip) {
-        const orders = await AppDataSource.getRepository(OrdersEntity).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-          order: { id: "DESC" },
-        });
-        const userById = orders.filter((order) => order?.user?.id == userId);
+      if (userId && userId > 0) {
+        const ordersList = await query.getMany();
+        const userById = ordersList.filter(
+          (order) => order?.user?.id == userId
+        );
         return [
           {
             pages: 1,
@@ -119,90 +131,20 @@ export const resolvers = {
         ];
       }
       if (+skip > 0 && +take > 0 && !userId) {
-        const orders = await AppDataSource.getRepository(OrdersEntity).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-        });
-        const paginatedOrders = await AppDataSource.getRepository(
-          OrdersEntity
-        ).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-          order: { id: "DESC" },
-          skip: +take * (+skip - 1),
-          take: +take,
-        });
+        query = query.skip(+take * (+skip - 1)).take(+take);
+        const ordersList = await query.getMany();
         return [
           {
-            pages: Math.ceil(+orders.length / +take),
-            orders: paginatedOrders,
+            pages: Math.ceil(+ordersList.length / +take),
+            orders: ordersList,
           },
         ];
       }
-      if (+skip > 0 && +take > 0 && +userId > 0) {
-        const orders = await AppDataSource.getRepository(OrdersEntity).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-          order: { id: "DESC" },
-        });
-        const userById = orders.filter((order) => order?.user?.id == userId);
-        return [
-          {
-            pages: Math.ceil(+userById.length / +take),
-            orders: userById.slice((+skip - 1) * +take, +skip * +take),
-          },
-        ];
-      }
-      if (+userId > 0 && search) {
-        const orders = await AppDataSource.getRepository(OrdersEntity).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-          order: { id: "DESC" },
-          where: { title: Like(`${search}%`) },
-        });
-        const userById = orders.filter((order) => order?.user?.id == userId);
-        return [
-          {
-            pages: 1,
-            orders: userById,
-          },
-        ];
-      }
-      if (search) {
-        const orders = await AppDataSource.getRepository(OrdersEntity).find({
-          relations: {
-            clients: true,
-            user: true,
-          },
-          order: { id: "DESC" },
-          where: { title: Like(`${search}%`) },
-        });
-        return [
-          {
-            pages: 1,
-            orders,
-          },
-        ];
-      }
-      const orders = await AppDataSource.getRepository(OrdersEntity).find({
-        relations: {
-          clients: true,
-          user: true,
-        },
-        order: { id: "DESC" },
-      });
+      const ordersList = await query.getMany();
       return [
         {
           pages: 1,
-          orders,
+          orders: ordersList,
         },
       ];
     },

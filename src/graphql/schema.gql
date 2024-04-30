@@ -8,6 +8,7 @@ type Query {
     skip: String
     take: String
     search: String
+    status:String
   ): [Pagination]
 }
 
@@ -71,6 +72,7 @@ type Orders {
   priceTitle: String
   image: String
   link: String
+  orderPrice: String
   clients: [Clients]
   user: User
   createdAt: String
