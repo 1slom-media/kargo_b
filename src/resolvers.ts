@@ -98,6 +98,7 @@ export const resolvers = {
         });
       }
       if (status && String(status).length) {
+        console.log("st");
         query = query.andWhere("ordes.status=:status", { status: status });
       }
       if (search && String(search).length) {
@@ -105,6 +106,8 @@ export const resolvers = {
           search: `${search}%`,
         });
       }
+
+      const fullList = await query.getMany();
 
       if (userId && userId > 0 && +skip > 0 && +take > 0) {
         const ordersList = await query.getMany();
@@ -135,7 +138,7 @@ export const resolvers = {
         const ordersList = await query.getMany();
         return [
           {
-            pages: Math.ceil(+ordersList.length / +take),
+            pages: Math.ceil(+fullList.length / +take),
             orders: ordersList,
           },
         ];
